@@ -7,10 +7,10 @@ plugins = []
 [functions."*"]
 
 [build]
-publish = "Z:\\AI_ImageGen\\ComfyUI\\card_generator\\public"
+publish = "public"
 publishOrigin = "config"
 commandOrigin = "config"
-base = "Z:\\AI_ImageGen\\ComfyUI\\card_generator"
+base = ""
 command = "echo 'No build step required for static site'"
 
 [build.environment]
