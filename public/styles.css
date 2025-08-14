@@ -175,7 +175,11 @@ h1 {
     }
     
     .desktop-controls {
-        display: none;
+        display: none !important;
+    }
+    
+    .controls-container {
+        display: none !important;
     }
     
     .container {

@@ -7,6 +7,7 @@ class EventCardGenerator {
 
     init() {
         this.bindEvents();
+        this.initAccelerometer();
         this.fetchAndDisplayLatestCard(); // Initial load
     }
 
@@ -611,6 +612,72 @@ class EventCardGenerator {
         // Apply rotation
         card.style.setProperty('--rx', `${rotateX}deg`);
         card.style.setProperty('--ry', `${rotateY}deg`);
+    }
+
+    // Accelerometer support for mobile devices
+    initAccelerometer() {
+        if ('DeviceOrientationEvent' in window && 'ontouchstart' in window) {
+            // Request permission for iOS 13+
+            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(response => {
+                        if (response === 'granted') {
+                            this.enableAccelerometer();
+                        }
+                    })
+                    .catch(console.error);
+            } else {
+                // Android and older iOS
+                this.enableAccelerometer();
+            }
+        }
+    }
+
+    enableAccelerometer() {
+        let isAccelerometerActive = false;
+        
+        window.addEventListener('deviceorientation', (event) => {
+            // Only use accelerometer when not actively touching the card
+            if (!isAccelerometerActive) return;
+            
+            const card = document.getElementById('eventCard');
+            if (!card) return;
+
+            // Get device orientation values
+            const beta = event.beta;   // Front-to-back tilt (-180 to 180)
+            const gamma = event.gamma; // Left-to-right tilt (-90 to 90)
+
+            if (beta !== null && gamma !== null) {
+                // Convert to card rotation (limit range for subtle effect)
+                const rotateX = Math.max(-15, Math.min(15, beta * 0.3));
+                const rotateY = Math.max(-15, Math.min(15, gamma * 0.3));
+
+                // Apply rotation
+                card.style.setProperty('--rx', `${rotateX}deg`);
+                card.style.setProperty('--ry', `${rotateY}deg`);
+            }
+        });
+
+        // Enable accelerometer when card is visible and not being touched
+        const card = document.getElementById('eventCard');
+        if (card) {
+            // Enable accelerometer on touch end (after flip or movement)
+            card.addEventListener('touchend', () => {
+                setTimeout(() => {
+                    isAccelerometerActive = true;
+                }, 100);
+            });
+
+            // Disable accelerometer during touch interactions
+            card.addEventListener('touchstart', () => {
+                isAccelerometerActive = false;
+            });
+
+            // Enable by default after a short delay
+            setTimeout(() => {
+                isAccelerometerActive = true;
+            }, 1000);
+        }
     }
 }
 
