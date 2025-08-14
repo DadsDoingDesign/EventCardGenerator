@@ -204,6 +204,13 @@ class EventCardGenerator {
         // This function would update the DOM with cardData
         // For brevity, this is simplified
     }
+
+    flipCard() {
+        const card = document.getElementById('eventCard');
+        if (card) {
+            card.classList.toggle('flipped');
+        }
+    }
 }
 
 new EventCardGenerator();
