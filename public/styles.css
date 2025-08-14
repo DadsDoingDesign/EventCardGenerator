@@ -1,0 +1,719 @@
+/* ====================================================================
+   EVENT CARD GENERATOR STYLES
+   ==================================================================== */
+
+/* --------------------------------------------------------------------
+   1. ROOT & GLOBAL STYLES
+   -------------------------------------------------------------------- */
+
+:root {
+    /* Card Dimensions & Layout */
+    --card-width: 400px;
+    --card-aspect-ratio: 9 / 16;
+    --card-padding: 24px; /* Affects padding on the BACK of the card */
+    --card-border-radius: 16px;
+    --border-width: 24px;
+
+    /* Colors */
+    --gradient-primary: #ECFBA9;
+    --gradient-secondary: #D7FF25;
+    --gradient-tertiary: #FB9CE5;
+    --gradient-quaternary: #43045E;
+    --primary-color: #0B100F;
+    --card-back-bg: #fdfdfd;
+    --text-dark: #0B100F;
+    --text-light: #F5F5F5;
+    --background: #f8f9fa;
+    --main-gradient: linear-gradient(135deg, 
+        var(--gradient-primary) 15%, 
+        var(--gradient-secondary) 35%, 
+        var(--gradient-tertiary) 56%, 
+        var(--gradient-quaternary) 88%);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'DM Mono';
+    background: var(--background);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: fit-content;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    color: var(--text-dark);
+    margin-bottom: 30px;
+    font-size: 2.5rem;
+}
+
+
+
+/* --------------------------------------------------------------------
+   2. SHARED CARD STYLES (Applies to both Front & Back)
+   -------------------------------------------------------------------- */
+
+.card-container {
+    display: flex;
+    justify-content: center;
+    perspective: 1500px;
+    width: var(--card-width);
+    margin-bottom: 40px;
+}
+
+.card {
+    width: 100%;
+    aspect-ratio: var(--card-aspect-ratio);
+    position: relative;
+    --rx: 0deg;
+    --ry: 0deg;
+    --tx: 0px;
+    --ty: 0px;
+    --posx: 50%;
+    --posy: 50%;
+    transform-style: preserve-3d;
+    transition: transform 0.1s linear;
+    transform: perspective(2000px) rotateY(var(--ry)) rotateX(var(--rx));
+    border-radius: var(--card-border-radius);
+    background: var(--main-gradient);
+}
+
+.card.flipped {
+    transform: rotateY(180deg);
+}
+
+/* This is the container for each face (front and back) */
+.card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: var(--card-border-radius);
+    overflow: hidden;
+}
+
+/* --------------------------------------------------------------------
+   3. FRONT OF CARD
+   -------------------------------------------------------------------- */
+
+
+
+/* Remove the separate shadow element - we'll apply shadow directly to image */
+
+.gradient-border {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: var(--card-border-radius);
+    padding: var(--border-width);
+    background: var(--main-gradient);
+    z-index: 5;
+    /* Create a mask to cut out the image area, leaving only top, right, and bottom borders visible */
+    mask: 
+        /* Top border - keep visible */
+        linear-gradient(to bottom, white 0, white var(--border-width), transparent var(--border-width)),
+        /* Right border - keep visible */
+        linear-gradient(to left, white 0, white var(--border-width), transparent var(--border-width)),
+        /* Bottom border - keep visible */
+        linear-gradient(to top, white 0, white var(--border-width), transparent var(--border-width));
+    mask-composite: add;
+    -webkit-mask: 
+        /* Top border - keep visible */
+        linear-gradient(to bottom, white 0, white var(--border-width), transparent var(--border-width)),
+        /* Right border - keep visible */
+        linear-gradient(to left, white 0, white var(--border-width), transparent var(--border-width)),
+        /* Bottom border - keep visible */
+        linear-gradient(to top, white 0, white var(--border-width), transparent var(--border-width));
+    -webkit-mask-composite: source-over;
+}
+
+.image-container {
+    position: absolute;
+    transition: transform 0.1s ease-out;
+    transform: translate(var(--tx), var(--ty));
+    /* Extend image beyond card boundaries to ensure no edges show */
+    top: calc(var(--border-width) - 20px);
+    right: calc(var(--border-width) - 20px);
+    bottom: calc(var(--border-width) - 20px);
+    left: -20px;
+    overflow: hidden;
+    z-index: 1;
+    /* Inner shadow cast from the border onto the image */
+    box-shadow: 
+        inset 0 0 30px rgba(0, 0, 0, 0.8),
+        inset 0 0 60px rgba(0, 0, 0, 0.6),
+        inset 0 0 100px rgba(0, 0, 0, 0.5),
+        inset 0 10px 40px rgba(0, 0, 0, 0.7);
+}
+
+.image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.date-overlay.default-date {
+    position: absolute;
+    top: var(--border-width);
+    left: 0;
+    width: var(--border-width);
+    bottom: var(--border-width);
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 20px;
+    z-index: 6;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.date-text {
+    font-family: 'DM Mono', monospace;
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* Logo layer - anchored to card container, doesn't move with image */
+.logo-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none; /* Allow clicks to pass through */
+    z-index: 6; /* Above gradient border (z-index: 5) */
+}
+
+.logo-overlay::after {
+    content: '';
+    position: absolute;
+    /* Position relative to the card container, maintaining same distance from edges */
+    bottom: calc(var(--border-width) + 16px);
+    right: calc(var(--border-width) + 16px);
+    /* Fixed container size */
+    width: 80px;
+    height: 80px;
+    /* Logo positioned at bottom-right of container */
+    background-image: url("./placeholder/Windsurf Symbol_Standard.png");
+    background-size: contain; /* Maintain aspect ratio within container */
+    background-repeat: no-repeat;
+    background-position: bottom right; /* Align logo to bottom-right of container */
+    /* Add dramatic shadow to logo */
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.8))
+            drop-shadow(0 16px 32px rgba(0, 0, 0, 0.6))
+            drop-shadow(0 24px 48px rgba(0, 0, 0, 0.4));
+}
+
+.logo-placeholder.front-logo {
+    display: none; /* Hide original HTML element */
+}
+
+/* --------------------------------------------------------------------
+   3.5. TILT & HOLOGRAPHIC EFFECTS
+   -------------------------------------------------------------------- */
+
+.holo-effect {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    border-radius: var(--card-border-radius);
+    overflow: hidden;
+    z-index: 3;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease-out;
+}
+
+.card:hover .holo-effect {
+    opacity: 1;
+}
+
+.holo-pattern {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('./placeholder/Windsurf Symbol_Standard.png');
+    background-size: 40px;
+    background-repeat: repeat;
+    mix-blend-mode: overlay;
+    opacity: 0;
+    transition: opacity 0.2s ease-out;
+    z-index: 4;
+    mask: radial-gradient(
+        circle at var(--posx) var(--posy),
+        rgba(255, 255, 255, 1) 0%,
+        rgba(255, 255, 255, 0.8) 10%,
+        rgba(255, 255, 255, 0.4) 20%,
+        rgba(255, 255, 255, 0) 40%
+    );
+    -webkit-mask: radial-gradient(
+        circle at var(--posx) var(--posy),
+        rgba(255, 255, 255, 1) 0%,
+        rgba(255, 255, 255, 0.8) 10%,
+        rgba(255, 255, 255, 0.4) 20%,
+        rgba(255, 255, 255, 0) 40%
+    );
+}
+
+.card:hover .holo-pattern {
+    opacity: 0.6;
+}
+
+.holo-pattern.pattern-outlined {
+    background-image: url('./placeholder/Windsurf Pattern_Outlined.png');
+    background-size: 110% auto;
+    background-repeat: repeat-y;
+    background-position: center top;
+}
+
+.holo-pattern.pattern-filled {
+    background-image: url('./placeholder/Windsurf Pattern_Filled.png');
+    background-size: 110% auto;
+    background-repeat: repeat-y;
+    background-position: center top;
+}
+
+.holo-shine {
+    position: absolute;
+    top: -150%;
+    left: -150%;
+    width: 400%;
+    height: 400%;
+    background: radial-gradient(
+        circle at var(--x, 50%) var(--y, 50%),
+        rgba(255, 255, 255, 0.9) 0%,
+        rgba(255, 200, 255, 0.7) 5%,
+        rgba(200, 255, 255, 0.6) 10%,
+        rgba(255, 255, 200, 0.5) 15%,
+        rgba(255, 150, 255, 0.4) 20%,
+        rgba(150, 255, 255, 0.3) 25%,
+        rgba(255, 255, 150, 0.2) 30%,
+        rgba(255, 100, 255, 0.1) 35%,
+        rgba(0, 0, 0, 0) 40%
+    );
+    background-position: var(--posx) var(--posy);
+    background-size: 250% 250%;
+    opacity: 0.8;
+    mix-blend-mode: screen;
+}
+
+/* White/shiny holo variant */
+.card.white-holo .holo-shine {
+    background: radial-gradient(
+        circle at var(--x, 50%) var(--y, 50%),
+        rgba(255, 255, 255, 0.9) 0%,
+        rgba(255, 255, 255, 0.7) 10%,
+        rgba(255, 255, 255, 0.5) 20%,
+        rgba(255, 255, 255, 0.3) 30%,
+        rgba(255, 255, 255, 0.1) 40%,
+        rgba(0, 0, 0, 0) 50%
+    );
+    background-position: var(--posx) var(--posy);
+    background-size: 250% 250%;
+    opacity: 0.9;
+    mix-blend-mode: overlay;
+}
+
+/* Disable holo effect when checkbox is unchecked */
+.card.holo-disabled .holo-effect,
+.card.holo-disabled .holo-pattern,
+.card.holo-disabled .holo-shine {
+    display: none !important;
+}
+
+/* Holo shimmer and hover effects are now driven by JS and CSS variables. */
+
+/* --------------------------------------------------------------------
+   3.6. FLOATING CARD STYLE
+   -------------------------------------------------------------------- */
+
+/* Floating style: Image extends to left edge, border visible on other sides */
+.card.floating .image-container {
+    /* Position image to extend to left edge, within inner container on other sides */
+    top: var(--border-width);
+    right: var(--border-width);
+    bottom: var(--border-width);
+    left: 0; /* Extend all the way to left edge of card */
+    z-index: 10; /* Above everything else */
+    box-shadow: 
+        /* External shadow for floating effect */
+        0 15px 30px rgba(0, 0, 0, 0.4),
+        0 30px 60px rgba(0, 0, 0, 0.3),
+        0 45px 90px rgba(0, 0, 0, 0.2);
+    transform: translate3d(var(--tx), var(--ty), 15px); /* Combine parallax and 3D lift */
+}
+
+.card.floating .logo-overlay {
+    z-index: 11; /* Above the floating image */
+}
+
+.card.floating .logo-overlay::after {
+    /* Add external shadow to floating logo */
+    filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.4))
+            drop-shadow(0 30px 60px rgba(0, 0, 0, 0.3))
+            drop-shadow(0 45px 90px rgba(0, 0, 0, 0.2));
+    transform: translateZ(25px); /* Slightly higher than image */
+}
+
+/* Hide/show appropriate date overlay based on card style */
+.card .floating-date {
+    display: none; /* Hidden by default */
+}
+
+.card.floating .floating-date {
+    display: flex; /* Show in floating mode */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--border-width);
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 20px;
+    z-index: 11;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.card.floating .default-date {
+    display: none; /* Hide default date overlay in floating mode */
+}
+
+/* Add subtle glow to border when in floating mode */
+.card.floating .gradient-border {
+    box-shadow: 
+        inset 0 0 20px rgba(255, 255, 255, 0.1),
+        0 0 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Allow overflow for floating elements */
+.card.floating .card-face {
+    overflow: visible; /* Allow floating elements to extend beyond card boundaries */
+}
+
+/* --------------------------------------------------------------------
+   3.7. BLEND MODE VISUAL EFFECTS
+   -------------------------------------------------------------------- */
+
+/* Luminosity blend mode - Desaturated/Grayscale effect */
+.card.luminosity .image-container img {
+    filter: grayscale(0.8) contrast(1.1) brightness(0.9);
+}
+
+.card.luminosity .image-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+        rgba(200, 200, 200, 0.2) 0%, 
+        rgba(150, 150, 150, 0.3) 50%, 
+        rgba(100, 100, 100, 0.4) 100%);
+    mix-blend-mode: hard-light;
+    opacity: 0.6;
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* Normal blend mode - No special effect, default appearance */
+.card.normal .image-container img {
+    filter: none;
+    mix-blend-mode: normal;
+}
+
+.card.normal .image-container::after {
+    content: none;
+}
+
+/* Overlay blend mode - Vibrant color overlay effect */
+.card.overlay .image-container img {
+    filter: saturate(1.2) contrast(1.1); /* Keep filter for vibrancy */
+}
+
+.card.overlay .image-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--main-gradient);
+    mix-blend-mode: overlay;
+    opacity: 0.6; /* Adjust opacity for desired effect */
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* --------------------------------------------------------------------
+   4. BACK OF CARD
+   -------------------------------------------------------------------- */
+
+.card-back {
+    transform: rotateY(180deg);
+}
+
+.back-content-container {
+    position: absolute;
+    top: var(--border-width);
+    left: 0;
+    right: var(--border-width);
+    bottom: var(--border-width);
+    background: #f9f3e9;
+    border-top-right-radius: calc(var(--card-border-radius) - var(--border-width));
+    border-bottom-right-radius: calc(var(--card-border-radius) - var(--border-width));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+.back-content {
+    text-align: center;
+    color: #0b100f;
+    font-family: 'DM Sans', sans-serif;
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.back-header {
+    margin-bottom: 10px;
+}
+
+.back-header h1 {
+    font-size: 64px;
+    font-weight: 400;
+    line-height: 1;
+    margin: 0;
+    letter-spacing: -1.28px;
+    font-variation-settings: 'opsz' 14;
+}
+
+.back-date {
+    font-size: 24px;
+    font-weight: 400;
+    margin: 0;
+    font-variation-settings: 'opsz' 14;
+}
+
+.back-logo {
+    margin: 20px 0;
+}
+
+.back-logo img {
+    width: 92px;
+    height: auto;
+    filter: invert(1);
+}
+
+.back-discount {
+    margin: 20px 0;
+}
+
+.discount-label {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    font-variation-settings: 'opsz' 14;
+}
+
+.discount-code {
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    margin: 0;
+    font-variation-settings: 'opsz' 14;
+}
+
+.back-user {
+    margin-top: 20px;
+}
+
+.back-user h3 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    font-variation-settings: 'opsz' 14;
+}
+
+.back-user p {
+    font-size: 24px;
+    font-weight: 400;
+    margin: 0;
+    font-variation-settings: 'opsz' 14;
+}
+
+/* --------------------------------------------------------------------
+   5. UI CONTROLS & EMAIL PREVIEW
+   -------------------------------------------------------------------- */
+
+.controls-container {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    margin-bottom: 40px;
+}
+
+.toggle-controls {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    gap: 16px;
+    flex-direction: row;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.control-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.email-preview {
+    text-align: center;
+    margin-top: 50px;
+}
+
+.email-preview h3 {
+    margin-bottom: 20px;
+    color: var(--text-dark);
+}
+
+.email-card {
+    display: inline-block;
+    width: 300px;
+    height: 450px;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    padding: var(--border-width);
+    background: linear-gradient(135deg, var(--gradient-primary) 0%, var(--gradient-secondary) 100%);
+}
+
+.email-image-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: calc(12px - var(--border-width));
+    overflow: hidden;
+}
+
+.email-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.email-date-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--border-width);
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 15px;
+}
+
+.email-date-text {
+    color: white;
+    font-weight: 700;
+    font-size: 11px;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    :root {
+        --card-width: 300px;
+        --card-height: 450px;
+        --border-width: 6px;
+    }
+    
+    h1 {
+        font-size: 2rem;
+    }
+    
+    .controls {
+        flex-direction: row;
+        align-items: center;
+    }
+    
+    .controls button {
+        width: 100%;
+    }
+    
+    .card-content {
+        padding: 20px;
+    }
+    
+    .event-info h2 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.bounce-in {
+    animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.05); }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); opacity: 1; }
+}
