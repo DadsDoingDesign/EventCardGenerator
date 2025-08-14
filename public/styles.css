@@ -81,7 +81,7 @@ h1 {
     --posx: 50%;
     --posy: 50%;
     transform-style: preserve-3d;
-    transition: transform 0.6s ease-in-out;
+    transition: transform 0.3s ease-in-out;
     transform: perspective(2000px) rotateY(var(--ry)) rotateX(var(--rx));
     border-radius: var(--card-border-radius);
     background: var(--main-gradient);
