@@ -91,14 +91,17 @@ h1 {
     --posx: 50%;
     --posy: 50%;
     transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
     transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
     transform: perspective(2000px) rotateY(var(--ry)) rotateX(var(--rx));
+    -webkit-transform: perspective(2000px) rotateY(var(--ry)) rotateX(var(--rx));
     border-radius: var(--card-border-radius);
     background: var(--main-gradient);
 }
 
 .card.flipped {
     transform: perspective(2000px) rotateY(calc(180deg + var(--ry))) rotateX(var(--rx));
+    -webkit-transform: perspective(2000px) rotateY(calc(180deg + var(--ry))) rotateX(var(--rx));
 }
 
 
