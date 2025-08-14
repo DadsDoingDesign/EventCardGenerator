@@ -224,6 +224,9 @@ h1 {
     -webkit-transform: perspective(2000px) rotateY(var(--ry)) rotateX(var(--rx));
     border-radius: var(--card-border-radius);
     background: var(--main-gradient);
+    /* Force hardware acceleration and proper 3D context */
+    will-change: transform;
+    transform-origin: center center;
 }
 
 .card.flipped {
@@ -241,6 +244,14 @@ h1 {
     -webkit-backface-visibility: hidden;
     border-radius: var(--card-border-radius);
     overflow: hidden;
+    transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+}
+
+.card-front {
+    z-index: 2;
+    transform: rotateY(0deg);
+    -webkit-transform: rotateY(0deg);
 }
 
 /* --------------------------------------------------------------------
@@ -616,6 +627,8 @@ h1 {
 
 .card-back {
     transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg);
+    z-index: 1;
 }
 
 .card-back .gradient-border {
