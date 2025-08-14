@@ -14,8 +14,75 @@
     <div class="container">
         <h1>Event Card Generator</h1>
         
-        <!-- Shadcn Controls Container -->
-        <div class="controls-container">
+        <!-- Mobile Controls Button -->
+        <button class="mobile-controls-btn" id="mobileControlsBtn">
+            <span>⚙️</span>
+        </button>
+
+        <!-- Mobile Controls Modal -->
+        <div class="mobile-controls-modal" id="mobileControlsModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Card Controls</h3>
+                    <button class="modal-close" id="modalClose">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="mobile-toggle-controls">
+                        <!-- Pattern Toggle -->
+                        <div class="control-group">
+                            <label class="control-label">Pattern</label>
+                            <div class="toggle-group pattern-toggle-group">
+                                <button class="toggle-group-item active" data-pattern="symbols">Symbols</button>
+                                <button class="toggle-group-item" data-pattern="outlined">Outlined</button>
+                                <button class="toggle-group-item" data-pattern="filled">Filled</button>
+                            </div>
+                        </div>
+
+                        <!-- Style Toggle -->
+                        <div class="control-group">
+                            <label class="control-label">Style</label>
+                            <div class="toggle-group style-toggle-group">
+                                <button class="toggle-group-item active" data-style="default">Default</button>
+                                <button class="toggle-group-item" data-style="floating">Floating</button>
+                            </div>
+                        </div>
+
+                        <!-- Blend Mode Toggle -->
+                        <div class="control-group">
+                            <label class="control-label">Blend Mode</label>
+                            <div class="toggle-group blend-mode-toggle-group">
+                                <button class="toggle-group-item" data-blend-mode="luminosity">Luminosity</button>
+                                <button class="toggle-group-item active" data-blend-mode="normal">Normal</button>
+                                <button class="toggle-group-item" data-blend-mode="overlay">Overlay</button>
+                            </div>
+                        </div>
+
+                        <!-- Holo Type Toggle -->
+                        <div class="control-group">
+                            <label class="control-label">Holo</label>
+                            <div class="toggle-group holo-type-toggle-group">
+                                <button class="toggle-group-item active" data-holo-type="colorful">Colorful</button>
+                                <button class="toggle-group-item" data-holo-type="white">White</button>
+                            </div>
+                        </div>
+
+                        <!-- Holo Effect Switch -->
+                        <div class="control-group">
+                             <label class="control-label">Holo FX</label>
+                            <div class="switch-container">
+                                <label class="switch">
+                                    <input type="checkbox" id="mobile-holo-enabled-switch" checked>
+                                    <span class="switch-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Controls Container -->
+        <div class="controls-container desktop-controls">
             <div class="toggle-controls">
                 <!-- Pattern Toggle -->
                 <div class="control-group">

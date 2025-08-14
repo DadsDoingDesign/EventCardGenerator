@@ -55,8 +55,16 @@ body {
 }
 
 .container {
-    max-width: fit-content;
+    max-width: 1200px;
     margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
 }
 
 h1 {
@@ -69,19 +77,134 @@ h1 {
 
 
 /* --------------------------------------------------------------------
-   2. SHARED CARD STYLES (Applies to both Front & Back)
+   2. MOBILE CONTROLS & RESPONSIVE STYLES
+   -------------------------------------------------------------------- */
+
+/* Mobile Controls Button */
+.mobile-controls-btn {
+    display: none;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Mobile Controls Modal */
+.mobile-controls-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1001;
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 20px 20px 0 0;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 0;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--text-dark);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-dark);
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.mobile-toggle-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Desktop Controls */
+.desktop-controls {
+    display: block;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 768px) {
+    .mobile-controls-btn {
+        display: block;
+    }
+    
+    .desktop-controls {
+        display: none;
+    }
+    
+    .container {
+        gap: 1rem;
+        padding: 10px;
+    }
+    
+    h1 {
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+}
+
+/* --------------------------------------------------------------------
+   3. SHARED CARD STYLES (Applies to both Front & Back)
    -------------------------------------------------------------------- */
 
 .card-container {
     display: flex;
     justify-content: center;
-    perspective: 1500px;
-    width: var(--card-width);
-    margin-bottom: 40px;
+    align-items: center;
+    perspective: 2000px;
+    flex: 1;
+    min-height: 400px;
 }
 
 .card {
-    width: 100%;
+    width: var(--card-width);
+    max-width: 90vw;
     aspect-ratio: var(--card-aspect-ratio);
     position: relative;
     --rx: 0deg;

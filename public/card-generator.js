@@ -13,7 +13,58 @@ class EventCardGenerator {
     bindEvents() {
         const card = document.getElementById('eventCard');
         if (card) {
-            card.addEventListener('click', () => this.flipCard());
+            // Mobile touch interactions
+            let touchStartTime = 0;
+            let touchTimer = null;
+            let isLongPress = false;
+            
+            card.addEventListener('touchstart', (e) => {
+                touchStartTime = Date.now();
+                isLongPress = false;
+                
+                // Start long press timer
+                touchTimer = setTimeout(() => {
+                    isLongPress = true;
+                    // Enable card movement on long press
+                    this.enableCardMovement(e);
+                }, 500); // 500ms for long press
+            });
+            
+            card.addEventListener('touchend', (e) => {
+                clearTimeout(touchTimer);
+                
+                if (!isLongPress && Date.now() - touchStartTime < 500) {
+                    // Short tap - flip card
+                    this.flipCard();
+                } else if (isLongPress) {
+                    // End card movement
+                    this.disableCardMovement();
+                }
+            });
+            
+            card.addEventListener('touchmove', (e) => {
+                if (isLongPress) {
+                    this.handleCardMovement(e);
+                }
+            });
+            
+            // Desktop click for flip
+            card.addEventListener('click', (e) => {
+                // Only flip on desktop (non-touch devices)
+                if (!('ontouchstart' in window)) {
+                    this.flipCard();
+                }
+            });
+        }
+        
+        // Mobile controls modal
+        this.bindMobileControls();
+        
+        // Desktop hover for card movement
+        if (!('ontouchstart' in window)) {
+            card.addEventListener('mousemove', (e) => this.handleCardMovement(e));
+            card.addEventListener('mouseenter', () => this.enableCardMovement());
+            card.addEventListener('mouseleave', () => this.disableCardMovement());
         }
 
         // Pattern Toggle
@@ -405,6 +456,161 @@ class EventCardGenerator {
         if (card) {
             card.classList.toggle('flipped');
         }
+    }
+
+    // Mobile controls methods
+    bindMobileControls() {
+        const mobileBtn = document.getElementById('mobileControlsBtn');
+        const modal = document.getElementById('mobileControlsModal');
+        const closeBtn = document.getElementById('modalClose');
+
+        if (mobileBtn && modal) {
+            mobileBtn.addEventListener('click', () => {
+                modal.style.display = 'block';
+            });
+
+            closeBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+
+            // Close modal when clicking outside
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+
+            // Bind mobile control events (same as desktop)
+            this.bindMobileToggleEvents();
+        }
+    }
+
+    bindMobileToggleEvents() {
+        // Mobile Pattern Toggle
+        const mobilePatternGroup = document.querySelector('.mobile-toggle-controls .pattern-toggle-group');
+        if(mobilePatternGroup) {
+            mobilePatternGroup.addEventListener('click', (e) => {
+                if (e.target.classList.contains('toggle-group-item')) {
+                    this.updateActiveButton(mobilePatternGroup, e.target);
+                    this.switchPattern(e.target.dataset.pattern);
+                    // Sync with desktop controls
+                    this.syncDesktopControls('pattern', e.target.dataset.pattern);
+                }
+            });
+        }
+
+        // Mobile Style Toggle
+        const mobileStyleGroup = document.querySelector('.mobile-toggle-controls .style-toggle-group');
+        if(mobileStyleGroup) {
+            mobileStyleGroup.addEventListener('click', (e) => {
+                if (e.target.classList.contains('toggle-group-item')) {
+                    this.updateActiveButton(mobileStyleGroup, e.target);
+                    this.switchStyle(e.target.dataset.style);
+                    this.syncDesktopControls('style', e.target.dataset.style);
+                }
+            });
+        }
+
+        // Mobile Blend Mode Toggle
+        const mobileBlendModeGroup = document.querySelector('.mobile-toggle-controls .blend-mode-toggle-group');
+        if(mobileBlendModeGroup) {
+            mobileBlendModeGroup.addEventListener('click', (e) => {
+                if (e.target.classList.contains('toggle-group-item')) {
+                    this.updateActiveButton(mobileBlendModeGroup, e.target);
+                    this.switchBlendMode(e.target.dataset.blendMode);
+                    this.syncDesktopControls('blend-mode', e.target.dataset.blendMode);
+                }
+            });
+        }
+
+        // Mobile Holo Type Toggle
+        const mobileHoloTypeGroup = document.querySelector('.mobile-toggle-controls .holo-type-toggle-group');
+        if(mobileHoloTypeGroup) {
+            mobileHoloTypeGroup.addEventListener('click', (e) => {
+                if (e.target.classList.contains('toggle-group-item')) {
+                    this.updateActiveButton(mobileHoloTypeGroup, e.target);
+                    this.switchHoloType(e.target.dataset.holoType);
+                    this.syncDesktopControls('holo-type', e.target.dataset.holoType);
+                }
+            });
+        }
+
+        // Mobile Holo Effect Switch
+        const mobileHoloSwitch = document.getElementById('mobile-holo-enabled-switch');
+        if(mobileHoloSwitch) {
+            mobileHoloSwitch.addEventListener('change', (e) => {
+                this.toggleHoloEffect(e.target.checked);
+                // Sync with desktop switch
+                const desktopSwitch = document.getElementById('holo-enabled-switch');
+                if(desktopSwitch) {
+                    desktopSwitch.checked = e.target.checked;
+                }
+            });
+        }
+    }
+
+    syncDesktopControls(type, value) {
+        const desktopGroup = document.querySelector(`.desktop-controls .${type}-toggle-group`);
+        if (desktopGroup) {
+            const buttons = desktopGroup.querySelectorAll('.toggle-group-item');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset[type.replace('-', '')] === value || btn.dataset[type.replace('-', '').replace('Mode', '')] === value) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+    }
+
+    // Card movement methods
+    enableCardMovement(e) {
+        // Add visual feedback for movement mode
+        const card = document.getElementById('eventCard');
+        if (card) {
+            card.style.cursor = 'grab';
+        }
+    }
+
+    disableCardMovement() {
+        const card = document.getElementById('eventCard');
+        if (card) {
+            card.style.cursor = 'pointer';
+            // Reset card position smoothly
+            card.style.setProperty('--rx', '0deg');
+            card.style.setProperty('--ry', '0deg');
+        }
+    }
+
+    handleCardMovement(e) {
+        const card = document.getElementById('eventCard');
+        if (!card) return;
+
+        let clientX, clientY;
+        
+        // Handle both mouse and touch events
+        if (e.type.includes('touch')) {
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                return;
+            }
+        } else {
+            clientX = e.clientX;
+            clientY = e.clientY;
+        }
+
+        const rect = card.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        // Calculate rotation based on mouse/touch position
+        const rotateX = (clientY - centerY) / rect.height * -20; // Max 20deg rotation
+        const rotateY = (clientX - centerX) / rect.width * 20;
+
+        // Apply rotation
+        card.style.setProperty('--rx', `${rotateX}deg`);
+        card.style.setProperty('--ry', `${rotateY}deg`);
     }
 }
 
