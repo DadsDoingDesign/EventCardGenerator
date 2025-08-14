@@ -568,8 +568,19 @@ class EventCardGenerator {
             const buttons = group.querySelectorAll('.toggle-group-item');
             buttons.forEach(btn => {
                 btn.classList.remove('active');
-                const dataAttr = type.replace('-', '').replace('Mode', '');
-                if (btn.dataset[dataAttr] === value || btn.dataset[type.replace('-', '')] === value) {
+                
+                // Handle different data attribute formats
+                let matches = false;
+                if (type === 'blend-mode') {
+                    matches = btn.dataset.blendMode === value;
+                } else if (type === 'holo-type') {
+                    matches = btn.dataset.holoType === value;
+                } else {
+                    // For pattern and style
+                    matches = btn.dataset[type] === value;
+                }
+                
+                if (matches) {
                     btn.classList.add('active');
                 }
             });
