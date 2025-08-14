@@ -68,53 +68,58 @@ class EventCardGenerator {
             card.addEventListener('mouseleave', () => this.disableCardMovement());
         }
 
-        // Pattern Toggle
-        const patternGroup = document.querySelector('.pattern-toggle-group');
-        if(patternGroup) {
+        // Pattern Toggle - bind to all pattern groups (desktop and mobile)
+        const patternGroups = document.querySelectorAll('.pattern-toggle-group');
+        patternGroups.forEach(patternGroup => {
             patternGroup.addEventListener('click', (e) => {
                 if (e.target.classList.contains('toggle-group-item')) {
                     this.updateActiveButton(patternGroup, e.target);
                     this.switchPattern(e.target.dataset.pattern);
+                    // Sync all pattern groups
+                    this.syncAllControls('pattern', e.target.dataset.pattern);
                 }
             });
-        }
+        });
 
-        // Style Toggle
-        const styleGroup = document.querySelector('.style-toggle-group');
-        if(styleGroup) {
+        // Style Toggle - bind to all style groups
+        const styleGroups = document.querySelectorAll('.style-toggle-group');
+        styleGroups.forEach(styleGroup => {
             styleGroup.addEventListener('click', (e) => {
                 if (e.target.classList.contains('toggle-group-item')) {
                     this.updateActiveButton(styleGroup, e.target);
                     this.switchStyle(e.target.dataset.style);
+                    this.syncAllControls('style', e.target.dataset.style);
                 }
             });
-        }
+        });
 
-        // Blend Mode Toggle
-        const blendModeGroup = document.querySelector('.blend-mode-toggle-group');
-        if(blendModeGroup) {
+        // Blend Mode Toggle - bind to all blend mode groups
+        const blendModeGroups = document.querySelectorAll('.blend-mode-toggle-group');
+        blendModeGroups.forEach(blendModeGroup => {
             blendModeGroup.addEventListener('click', (e) => {
                 if (e.target.classList.contains('toggle-group-item')) {
                     this.updateActiveButton(blendModeGroup, e.target);
                     this.switchBlendMode(e.target.dataset.blendMode);
+                    this.syncAllControls('blend-mode', e.target.dataset.blendMode);
                 }
             });
-        }
+        });
 
-        // Holo Type Toggle
-        const holoTypeGroup = document.querySelector('.holo-type-toggle-group');
-        if(holoTypeGroup) {
+        // Holo Type Toggle - bind to all holo type groups
+        const holoTypeGroups = document.querySelectorAll('.holo-type-toggle-group');
+        holoTypeGroups.forEach(holoTypeGroup => {
             holoTypeGroup.addEventListener('click', (e) => {
                 if (e.target.classList.contains('toggle-group-item')) {
                     this.updateActiveButton(holoTypeGroup, e.target);
                     this.switchHoloType(e.target.dataset.holoType);
+                    this.syncAllControls('holo-type', e.target.dataset.holoType);
                 }
             });
-        }
+        });
 
-        // Holo Effect Switch
-        const holoSwitch = document.getElementById('holo-enabled-switch');
-        if(holoSwitch) {
+        // Holo Effect Switch - bind to all switches
+        const holoSwitches = document.querySelectorAll('#holo-enabled-switch, #mobile-holo-enabled-switch');
+        holoSwitches.forEach(holoSwitch => {
             holoSwitch.addEventListener('change', (e) => {
                 const card = document.querySelector('.card');
                 if (e.target.checked) {
@@ -122,8 +127,14 @@ class EventCardGenerator {
                 } else {
                     card.classList.add('holo-disabled');
                 }
+                // Sync all switches
+                holoSwitches.forEach(otherSwitch => {
+                    if (otherSwitch !== e.target) {
+                        otherSwitch.checked = e.target.checked;
+                    }
+                });
             });
-        }
+        });
 
         this.setupHoloEffect();
     }
@@ -550,17 +561,24 @@ class EventCardGenerator {
         }
     }
 
-    syncDesktopControls(type, value) {
-        const desktopGroup = document.querySelector(`.desktop-controls .${type}-toggle-group`);
-        if (desktopGroup) {
-            const buttons = desktopGroup.querySelectorAll('.toggle-group-item');
+    syncAllControls(type, value) {
+        // Sync all control groups of this type (desktop and mobile)
+        const allGroups = document.querySelectorAll(`.${type}-toggle-group`);
+        allGroups.forEach(group => {
+            const buttons = group.querySelectorAll('.toggle-group-item');
             buttons.forEach(btn => {
                 btn.classList.remove('active');
-                if (btn.dataset[type.replace('-', '')] === value || btn.dataset[type.replace('-', '').replace('Mode', '')] === value) {
+                const dataAttr = type.replace('-', '').replace('Mode', '');
+                if (btn.dataset[dataAttr] === value || btn.dataset[type.replace('-', '')] === value) {
                     btn.classList.add('active');
                 }
             });
-        }
+        });
+    }
+
+    syncDesktopControls(type, value) {
+        // Keep this for backward compatibility, but use syncAllControls instead
+        this.syncAllControls(type, value);
     }
 
     // Card movement methods
@@ -616,27 +634,61 @@ class EventCardGenerator {
 
     // Accelerometer support for mobile devices
     initAccelerometer() {
-        if ('DeviceOrientationEvent' in window && 'ontouchstart' in window) {
+        console.log('Initializing accelerometer...');
+        
+        if ('DeviceOrientationEvent' in window) {
+            console.log('DeviceOrientationEvent supported');
+            
             // Request permission for iOS 13+
             if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-                DeviceOrientationEvent.requestPermission()
-                    .then(response => {
-                        if (response === 'granted') {
-                            this.enableAccelerometer();
-                        }
-                    })
-                    .catch(console.error);
+                console.log('Requesting permission for iOS...');
+                
+                // Add a button to trigger permission request (iOS requires user gesture)
+                const permissionBtn = document.createElement('button');
+                permissionBtn.textContent = 'Enable Tilt Control';
+                permissionBtn.style.cssText = `
+                    position: fixed;
+                    bottom: 20px;
+                    left: 20px;
+                    z-index: 1000;
+                    padding: 10px 15px;
+                    background: #007AFF;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    font-size: 14px;
+                `;
+                
+                permissionBtn.addEventListener('click', () => {
+                    DeviceOrientationEvent.requestPermission()
+                        .then(response => {
+                            console.log('Permission response:', response);
+                            if (response === 'granted') {
+                                this.enableAccelerometer();
+                                permissionBtn.remove();
+                            }
+                        })
+                        .catch(console.error);
+                });
+                
+                document.body.appendChild(permissionBtn);
             } else {
-                // Android and older iOS
+                // Android and older iOS - enable directly
+                console.log('Enabling accelerometer directly...');
                 this.enableAccelerometer();
             }
+        } else {
+            console.log('DeviceOrientationEvent not supported');
         }
     }
 
     enableAccelerometer() {
-        let isAccelerometerActive = false;
+        console.log('Enabling accelerometer...');
+        let isAccelerometerActive = true; // Start active immediately
         
         window.addEventListener('deviceorientation', (event) => {
+            console.log('Device orientation event:', event.beta, event.gamma, 'Active:', isAccelerometerActive);
+            
             // Only use accelerometer when not actively touching the card
             if (!isAccelerometerActive) return;
             
@@ -649,8 +701,10 @@ class EventCardGenerator {
 
             if (beta !== null && gamma !== null) {
                 // Convert to card rotation (limit range for subtle effect)
-                const rotateX = Math.max(-15, Math.min(15, beta * 0.3));
-                const rotateY = Math.max(-15, Math.min(15, gamma * 0.3));
+                const rotateX = Math.max(-20, Math.min(20, beta * 0.5));
+                const rotateY = Math.max(-20, Math.min(20, gamma * 0.5));
+
+                console.log('Applying rotation:', rotateX, rotateY);
 
                 // Apply rotation
                 card.style.setProperty('--rx', `${rotateX}deg`);
@@ -665,19 +719,18 @@ class EventCardGenerator {
             card.addEventListener('touchend', () => {
                 setTimeout(() => {
                     isAccelerometerActive = true;
-                }, 100);
+                    console.log('Accelerometer re-enabled after touch');
+                }, 500);
             });
 
             // Disable accelerometer during touch interactions
             card.addEventListener('touchstart', () => {
                 isAccelerometerActive = false;
+                console.log('Accelerometer disabled during touch');
             });
-
-            // Enable by default after a short delay
-            setTimeout(() => {
-                isAccelerometerActive = true;
-            }, 1000);
         }
+        
+        console.log('Accelerometer setup complete');
     }
 }
 
