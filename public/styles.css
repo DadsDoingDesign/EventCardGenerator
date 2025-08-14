@@ -2,6 +2,16 @@
    EVENT CARD GENERATOR STYLES
    ==================================================================== */
 
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+
+@font-face {
+    font-family: 'Tomato Grotesk';
+    src: url('../fonts/Tomato Grotesk Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
 /* --------------------------------------------------------------------
    1. ROOT & GLOBAL STYLES
    -------------------------------------------------------------------- */
@@ -81,20 +91,16 @@ h1 {
     --posx: 50%;
     --posy: 50%;
     transform-style: preserve-3d;
-    transition: transform 0.3s ease-in-out;
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
     transform: perspective(2000px) rotateY(var(--ry)) rotateX(var(--rx));
     border-radius: var(--card-border-radius);
     background: var(--main-gradient);
 }
 
 .card.flipped {
-    transform: rotateY(180deg);
+    transform: perspective(2000px) rotateY(calc(180deg + var(--ry))) rotateX(var(--rx));
 }
 
-/* Back face should be rotated 180 degrees initially */
-.card-back {
-    transform: rotateY(180deg);
-}
 
 /* This is the container for each face (front and back) */
 .card-face {
@@ -146,7 +152,7 @@ h1 {
 
 .image-container {
     position: absolute;
-    transition: transform 0.1s ease-out;
+    transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     transform: translate(var(--tx), var(--ty));
     /* Extend image beyond card boundaries to ensure no edges show */
     top: calc(var(--border-width) - 20px);
@@ -364,9 +370,9 @@ h1 {
     z-index: 10; /* Above everything else */
     box-shadow: 
         /* External shadow for floating effect */
-        0 15px 30px rgba(0, 0, 0, 0.4),
-        0 30px 60px rgba(0, 0, 0, 0.3),
-        0 45px 90px rgba(0, 0, 0, 0.2);
+        0 8px 8px rgba(0, 0, 0, 0.4),
+        0 13px 13px rgba(0, 0, 0, 0.3),
+        0 21px 21px rgba(0, 0, 0, 0.2);
     transform: translate3d(var(--tx), var(--ty), 15px); /* Combine parallax and 3D lift */
 }
 
@@ -482,45 +488,79 @@ h1 {
     transform: rotateY(180deg);
 }
 
+.card-back .gradient-border {
+    background: transparent;
+    mask: none;
+    -webkit-mask: none;
+}
+
 .back-content-container {
+    z-index: 6; /* This ensures the content appears on top of the gradient border */
     position: absolute;
     top: var(--border-width);
-    left: 0;
+    left: var(--border-width);
     right: var(--border-width);
     bottom: var(--border-width);
     background: #f9f3e9;
-    border-top-right-radius: calc(var(--card-border-radius) - var(--border-width));
-    border-bottom-right-radius: calc(var(--card-border-radius) - var(--border-width));
+    border-radius: calc(var(--card-border-radius) - var(--border-width));
     display: flex;
-    align-items: center;
+    align-items: top;
     justify-content: center;
     padding: 24px;
     box-sizing: border-box;
+    overflow: hidden;
+}
+
+.back-content-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('./placeholder/Wave Outlined Gradient.svg');
+    background-size: auto 110%;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 1;
+    z-index: 1;
+    pointer-events: none;
+    mask: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), black 0px, black 80px, transparent 160px);
+    -webkit-mask: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), black 0px, black 80px, transparent 160px);
+    transition: mask 0.1s ease, -webkit-mask 0.1s ease, opacity 0.3s ease;
+    opacity: 0;
+}
+
+.card:hover .back-content-container::before {
+    opacity: 1;
 }
 
 .back-content {
-    text-align: center;
+    text-align: left;
     color: #0b100f;
     font-family: 'DM Sans', sans-serif;
     width: 100%;
     max-width: 400px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 20px;
+    align-items: left;
+    gap: 16px;
+    position: relative;
+    z-index: 5;
 }
 
 .back-header {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .back-header h1 {
-    font-size: 64px;
+    font-family: 'Tomato Grotesk', sans-serif;
+    font-size: 40px;
     font-weight: 400;
     line-height: 1;
     margin: 0;
     letter-spacing: -1.28px;
-    font-variation-settings: 'opsz' 14;
+    text-align: left;
 }
 
 .back-date {
@@ -530,51 +570,48 @@ h1 {
     font-variation-settings: 'opsz' 14;
 }
 
-.back-logo {
-    margin: 20px 0;
+.back-logo-overlay {
+    position: absolute;
+    bottom: calc(var(--border-width) + 16px);
+    right: calc(var(--border-width) + 16px);
+    width: 80px;
+    height: 80px;
+    z-index: 7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
 }
 
-.back-logo img {
-    width: 92px;
-    height: auto;
+.back-logo-overlay img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
     filter: invert(1);
 }
 
-.back-discount {
-    margin: 20px 0;
-}
-
-.discount-label {
-    font-size: 24px;
-    font-weight: 700;
-    margin: 0 0 8px 0;
-    font-variation-settings: 'opsz' 14;
-}
-
-.discount-code {
-    font-size: 24px;
-    font-weight: 400;
-    letter-spacing: 1px;
-    margin: 0;
-    font-variation-settings: 'opsz' 14;
-}
-
 .back-user {
-    margin-top: 20px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 8;
+    width: 80%;
 }
 
 .back-user h3 {
-    font-size: 24px;
+    font-size: clamp(24px, 8vw, 48px);
     font-weight: 700;
-    margin: 0 0 8px 0;
-    font-variation-settings: 'opsz' 14;
-}
-
-.back-user p {
-    font-size: 24px;
-    font-weight: 400;
     margin: 0;
     font-variation-settings: 'opsz' 14;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transform: translate3d(calc(var(--tx) * 0.8), calc(var(--ty) * 0.8), 10px);
+    transition: transform 0.1s ease;
 }
 
 /* --------------------------------------------------------------------

@@ -73,7 +73,7 @@ class EventCardGenerator {
             });
         }
 
-        this.bindTiltEffect();
+        this.setupHoloEffect();
     }
 
     updateActiveButton(group, activeButton) {
@@ -126,50 +126,245 @@ class EventCardGenerator {
         }
     }
 
-    bindTiltEffect() {
+    setupHoloEffect() {
         const card = document.getElementById('eventCard');
         if (!card) return;
 
+        let animationFrame = null;
+        let mouseX = 0;
+        let mouseY = 0;
+        let cardRect = card.getBoundingClientRect();
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let currentRotateX = 0;
+        let currentRotateY = 0;
+
+        // Update card rect on window resize
+        window.addEventListener('resize', () => {
+            cardRect = card.getBoundingClientRect();
+        });
+
+        const updateCardTransform = (clientX, clientY, isDragUpdate = false) => {
+            const width = cardRect.width;
+            const height = cardRect.height;
+            
+            let normalX, normalY;
+            
+            if (isDragUpdate && isDragging) {
+                // For drag, calculate rotation based on drag distance
+                const dragDistanceX = (clientX - dragStartX) / width;
+                const dragDistanceY = (clientY - dragStartY) / height;
+                
+                // Add to current rotation (accumulative)
+                currentRotateY = Math.max(-30, Math.min(30, currentRotateY + dragDistanceX * 20));
+                currentRotateX = Math.max(-30, Math.min(30, currentRotateX - dragDistanceY * 20));
+                
+                // Update drag start for next frame
+                dragStartX = clientX;
+                dragStartY = clientY;
+                
+                // Use accumulated rotation values
+                const rotateX = currentRotateX;
+                const rotateY = currentRotateY;
+                
+                // Calculate position for effects based on current touch/mouse position
+                const x = clientX - cardRect.left;
+                const y = clientY - cardRect.top;
+                const posX = (x / width) * 100;
+                const posY = (y / height) * 100;
+                
+                // Batch all style updates
+                card.style.cssText += `
+                    --rx: ${rotateX}deg;
+                    --ry: ${rotateY}deg;
+                    --tx: ${rotateY * -0.5}px;
+                    --ty: ${rotateX * 0.5}px;
+                    --posx: ${posX}%;
+                    --posy: ${posY}%;
+                    --mouse-x: ${posX}%;
+                    --mouse-y: ${posY}%;
+                `;
+            } else {
+                // For hover, calculate based on position
+                const x = clientX - cardRect.left;
+                const y = clientY - cardRect.top;
+                
+                normalX = (x / width - 0.5) * 2;
+                normalY = (y / height - 0.5) * 2;
+                
+                // Tilt rotation calculations
+                const rotateX = normalY * -10;
+                const rotateY = normalX * 10;
+                
+                // Parallax translation calculations
+                const translateX = normalX * -15;
+                const translateY = normalY * -15;
+                
+                // Calculate holo shine position
+                const posX = (x / width) * 100;
+                const posY = (y / height) * 100;
+                
+                // Batch all style updates
+                card.style.cssText += `
+                    --rx: ${rotateX}deg;
+                    --ry: ${rotateY}deg;
+                    --tx: ${translateX}px;
+                    --ty: ${translateY}px;
+                    --posx: ${posX}%;
+                    --posy: ${posY}%;
+                    --mouse-x: ${posX}%;
+                    --mouse-y: ${posY}%;
+                `;
+            }
+        };
+
+        // Mouse events
         const onMouseMove = (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const { width, height } = rect;
+            if (!isDragging) {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
 
-            // Calculate rotation values
-            // Tilt rotation calculations (adjust multipliers for stronger/weaker tilt)
-            const rotateX = (y - height / 2) / (height / 2) * -8; // Invert and scale (change -8 to adjust X-axis tilt strength)
-            const rotateY = (x - width / 2) / (width / 2) * 8; // Scale (change 8 to adjust Y-axis tilt strength)
+                if (animationFrame) {
+                    cancelAnimationFrame(animationFrame);
+                }
+                animationFrame = requestAnimationFrame(() => updateCardTransform(mouseX, mouseY, false));
+            }
+        };
 
-            // Parallax translation calculations (adjust multipliers for stronger/weaker parallax)
-            const translateX = (x - width / 2) / (width / 2) * -20; // Invert for parallax (change -20 to adjust horizontal parallax strength)
-            const translateY = (y - height / 2) / (height / 2) * -20; // Invert for parallax (change -20 to adjust vertical parallax strength)
-
-            // Calculate holo shine position
-            const posX = (x / width) * 100;
-            const posY = (y / height) * 100;
-
-            // Set CSS custom properties
-            card.style.setProperty('--rx', `${rotateX.toFixed(2)}deg`);
-            card.style.setProperty('--ry', `${rotateY.toFixed(2)}deg`);
-            card.style.setProperty('--tx', `${translateX.toFixed(2)}px`);
-            card.style.setProperty('--ty', `${translateY.toFixed(2)}px`);
-            card.style.setProperty('--posx', `${posX.toFixed(2)}%`);
-            card.style.setProperty('--posy', `${posY.toFixed(2)}%`);
+        const onMouseEnter = () => {
+            cardRect = card.getBoundingClientRect();
+            card.style.willChange = 'transform';
         };
 
         const onMouseLeave = () => {
-            // Reset CSS custom properties on mouse leave
-            card.style.setProperty('--rx', '0deg');
-            card.style.setProperty('--ry', '0deg');
-            card.style.setProperty('--tx', '0px');
-            card.style.setProperty('--ty', '0px');
-            card.style.setProperty('--posx', '50%');
-            card.style.setProperty('--posy', '50%');
+            if (!isDragging) {
+                resetCard();
+            }
         };
 
+        // Touch events for mobile
+        const onTouchStart = (e) => {
+            e.preventDefault(); // Prevent scrolling while dragging
+            isDragging = true;
+            const touch = e.touches[0];
+            dragStartX = touch.clientX;
+            dragStartY = touch.clientY;
+            cardRect = card.getBoundingClientRect();
+            card.style.willChange = 'transform';
+            
+            // Initialize current rotation to 0 at start of drag
+            currentRotateX = 0;
+            currentRotateY = 0;
+        };
+
+        const onTouchMove = (e) => {
+            if (isDragging) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                
+                if (animationFrame) {
+                    cancelAnimationFrame(animationFrame);
+                }
+                animationFrame = requestAnimationFrame(() => 
+                    updateCardTransform(touch.clientX, touch.clientY, true)
+                );
+            }
+        };
+
+        const onTouchEnd = (e) => {
+            e.preventDefault();
+            isDragging = false;
+            
+            // Smoothly return to center
+            setTimeout(() => {
+                if (!isDragging) {
+                    resetCard();
+                }
+            }, 100);
+        };
+
+        // Mouse drag events for desktop
+        const onMouseDown = (e) => {
+            isDragging = true;
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            cardRect = card.getBoundingClientRect();
+            card.style.willChange = 'transform';
+            
+            // Initialize current rotation to 0 at start of drag
+            currentRotateX = 0;
+            currentRotateY = 0;
+            
+            // Prevent text selection while dragging
+            e.preventDefault();
+        };
+
+        const onMouseDrag = (e) => {
+            if (isDragging) {
+                e.preventDefault();
+                
+                if (animationFrame) {
+                    cancelAnimationFrame(animationFrame);
+                }
+                animationFrame = requestAnimationFrame(() => 
+                    updateCardTransform(e.clientX, e.clientY, true)
+                );
+            }
+        };
+
+        const onMouseUp = () => {
+            if (isDragging) {
+                isDragging = false;
+                
+                // Check if mouse is still over card
+                const rect = card.getBoundingClientRect();
+                const isMouseOverCard = 
+                    mouseX >= rect.left && 
+                    mouseX <= rect.right && 
+                    mouseY >= rect.top && 
+                    mouseY <= rect.bottom;
+                
+                if (!isMouseOverCard) {
+                    resetCard();
+                }
+            }
+        };
+
+        const resetCard = () => {
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+                animationFrame = null;
+            }
+
+            card.style.willChange = 'auto';
+            card.style.cssText += `
+                --rx: 0deg;
+                --ry: 0deg;
+                --tx: 0px;
+                --ty: 0px;
+                --posx: 50%;
+                --posy: 50%;
+            `;
+            
+            currentRotateX = 0;
+            currentRotateY = 0;
+        };
+
+        // Mouse events
+        card.addEventListener('mouseenter', onMouseEnter);
         card.addEventListener('mousemove', onMouseMove);
         card.addEventListener('mouseleave', onMouseLeave);
+        card.addEventListener('mousedown', onMouseDown);
+        
+        // Global mouse events for drag
+        document.addEventListener('mousemove', onMouseDrag);
+        document.addEventListener('mouseup', onMouseUp);
+        
+        // Touch events
+        card.addEventListener('touchstart', onTouchStart, { passive: false });
+        card.addEventListener('touchmove', onTouchMove, { passive: false });
+        card.addEventListener('touchend', onTouchEnd, { passive: false });
     }
 
     async fetchAndDisplayLatestCard() {
