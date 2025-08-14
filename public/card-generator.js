@@ -697,6 +697,12 @@ class EventCardGenerator {
         console.log('Enabling accelerometer...');
         let isAccelerometerActive = true; // Start active immediately
         
+        // Add accelerometer-active class to enable holo effects
+        const card = document.getElementById('eventCard');
+        if (card) {
+            card.classList.add('accelerometer-active');
+        }
+        
         window.addEventListener('deviceorientation', (event) => {
             console.log('Device orientation event:', event.beta, event.gamma, 'Active:', isAccelerometerActive);
             
@@ -715,16 +721,24 @@ class EventCardGenerator {
                 const rotateX = Math.max(-20, Math.min(20, beta * 0.5));
                 const rotateY = Math.max(-20, Math.min(20, gamma * 0.5));
 
-                console.log('Applying rotation:', rotateX, rotateY);
+                // Calculate mouse position for holo effects based on device tilt
+                // Map tilt to percentage position (0-100%)
+                const mouseX = Math.max(0, Math.min(100, 50 + (gamma * 2))); // Left-right tilt
+                const mouseY = Math.max(0, Math.min(100, 50 + (beta * 2)));  // Front-back tilt
 
-                // Apply rotation
+                console.log('Applying rotation and effects:', rotateX, rotateY, mouseX, mouseY);
+
+                // Apply rotation and holo effect positioning
                 card.style.setProperty('--rx', `${rotateX}deg`);
                 card.style.setProperty('--ry', `${rotateY}deg`);
+                card.style.setProperty('--mouse-x', `${mouseX}%`);
+                card.style.setProperty('--mouse-y', `${mouseY}%`);
+                card.style.setProperty('--posx', `${mouseX}%`);
+                card.style.setProperty('--posy', `${mouseY}%`);
             }
         });
 
         // Enable accelerometer when card is visible and not being touched
-        const card = document.getElementById('eventCard');
         if (card) {
             // Enable accelerometer on touch end (after flip or movement)
             card.addEventListener('touchend', () => {
