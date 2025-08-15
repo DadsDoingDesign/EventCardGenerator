@@ -257,12 +257,12 @@ class EventCardGenerator {
                 normalY = (y / height - 0.5) * 2;
                 
                 // Tilt rotation calculations
-                const rotateX = normalY * -10;
-                const rotateY = normalX * 10;
+                const rotateX = normalY * -15;
+                const rotateY = normalX * 15;
                 
                 // Parallax translation calculations
-                const translateX = normalX * -15;
-                const translateY = normalY * -15;
+                const translateX = normalX * -25;
+                const translateY = normalY * -25;
                 
                 // Calculate holo shine position
                 const posX = (x / width) * 100;

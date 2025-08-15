@@ -515,7 +515,7 @@ h1 {
         0 8px 8px rgba(0, 0, 0, 0.4),
         0 13px 13px rgba(0, 0, 0, 0.3),
         0 21px 21px rgba(0, 0, 0, 0.2);
-    transform: translate3d(var(--tx), var(--ty), 15px); /* Combine parallax and 3D lift */
+    transform: translate3d(var(--tx), var(--ty), 25px); /* Combine parallax and 3D lift */
 }
 
 .card.floating .logo-overlay {
