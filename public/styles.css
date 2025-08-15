@@ -653,7 +653,7 @@ h1 {
     right: var(--border-width);
     bottom: var(--border-width);
     background: #f9f3e9;
-    border-radius: calc(var(--card-border-radius) - var(--border-width));
+    border-radius: var(--card-border-radius);
     display: flex;
     align-items: top;
     justify-content: center;
