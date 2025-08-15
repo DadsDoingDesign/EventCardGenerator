@@ -449,7 +449,8 @@ h1 {
     );
 }
 
-.card:hover .holo-pattern {
+.card:hover .holo-pattern,
+.card.accelerometer-active .holo-pattern {
     opacity: 0.6;
 }
 
