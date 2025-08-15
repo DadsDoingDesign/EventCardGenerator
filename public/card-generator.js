@@ -697,11 +697,8 @@ class EventCardGenerator {
         console.log('Enabling accelerometer...');
         let isAccelerometerActive = true; // Start active immediately
         
-        // Add accelerometer-active class to enable holo effects
         const card = document.getElementById('eventCard');
-        if (card) {
-            card.classList.add('accelerometer-active');
-        }
+        // Don't add accelerometer-active class immediately - wait for actual device orientation data
         
         window.addEventListener('deviceorientation', (event) => {
             console.log('Device orientation event:', event.beta, event.gamma, 'Active:', isAccelerometerActive);
@@ -717,6 +714,11 @@ class EventCardGenerator {
             const gamma = event.gamma; // Left-to-right tilt (-90 to 90)
 
             if (beta !== null && gamma !== null) {
+                // Add accelerometer-active class only when we have valid orientation data
+                if (!card.classList.contains('accelerometer-active')) {
+                    card.classList.add('accelerometer-active');
+                }
+                
                 // Convert to card rotation (limit range for subtle effect)
                 const rotateX = Math.max(-20, Math.min(20, beta * 0.5));
                 const rotateY = Math.max(-20, Math.min(20, gamma * 0.5));
