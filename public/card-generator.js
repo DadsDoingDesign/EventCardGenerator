@@ -7,9 +7,13 @@ class EventCardGenerator {
 
     init() {
         this.bindEvents();
-        this.initAccelerometer();
         this.fetchAndDisplayLatestCard(); // Initial load
         this.initializeDefaults(); // Set default pattern
+        
+        // Only initialize accelerometer on mobile devices
+        if (window.DeviceOrientationEvent && /Mobi|Android/i.test(navigator.userAgent)) {
+            this.initAccelerometer();
+        }
     }
 
     bindEvents() {

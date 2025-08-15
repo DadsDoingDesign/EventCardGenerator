@@ -415,7 +415,10 @@ h1 {
     transition: opacity 0.4s ease-out;
 }
 
-.card:hover .holo-effect,
+.card:hover .holo-effect {
+    opacity: 1;
+}
+
 .card.accelerometer-active .holo-effect {
     opacity: 1;
 }
@@ -449,12 +452,18 @@ h1 {
     );
 }
 
-.card:hover .holo-pattern,
+.card:hover .holo-pattern {
+    opacity: 0.6;
+}
+
 .card.accelerometer-active .holo-pattern {
     opacity: 0.6;
 }
 
-.card:hover .holo-shine,
+.card:hover .holo-shine {
+    opacity: 0.8;
+}
+
 .card.accelerometer-active .holo-shine {
     opacity: 0.8;
 }
