@@ -82,7 +82,7 @@ body::before {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    position: relative;
+    gap: 2rem;
 }
 
 h1 {
@@ -91,11 +91,6 @@ h1 {
     color: var(--text-dark);
     margin-bottom: 30px;
     font-size: 2.5rem;
-    position: absolute;
-    top: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10;
 }
 
 
@@ -816,11 +811,6 @@ h1 {
     padding: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     margin-bottom: 40px;
-    position: absolute;
-    top: 120px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10;
 }
 
 .toggle-controls {
