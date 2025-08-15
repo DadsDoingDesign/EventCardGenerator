@@ -250,19 +250,24 @@ class EventCardGenerator {
                 `;
             } else {
                 // For hover, calculate based on position
-                const x = clientX - cardRect.left;
-                const y = clientY - cardRect.top;
+                const x = Math.max(0, Math.min(width, clientX - cardRect.left));
+                const y = Math.max(0, Math.min(height, clientY - cardRect.top));
                 
-                normalX = (x / width - 0.5) * 2;
-                normalY = (y / height - 0.5) * 2;
+                // Smooth normalization with clamping to prevent edge jumps
+                normalX = Math.max(-1, Math.min(1, (x / width - 0.5) * 2));
+                normalY = Math.max(-1, Math.min(1, (y / height - 0.5) * 2));
                 
-                // Tilt rotation calculations
-                const rotateX = normalY * -15;
-                const rotateY = normalX * 15;
+                // Apply smoothing curve to reduce sensitivity at edges
+                const smoothX = normalX * Math.abs(normalX) * 0.8; // Quadratic easing
+                const smoothY = normalY * Math.abs(normalY) * 0.8;
                 
-                // Parallax translation calculations
-                const translateX = normalX * -25;
-                const translateY = normalY * -25;
+                // Tilt rotation calculations with smoothed values
+                const rotateX = smoothY * -15;
+                const rotateY = smoothX * 15;
+                
+                // Parallax translation calculations with smoothed values
+                const translateX = smoothX * -25;
+                const translateY = smoothY * -25;
                 
                 // Calculate holo shine position
                 const posX = (x / width) * 100;
