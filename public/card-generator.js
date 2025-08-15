@@ -703,7 +703,10 @@ class EventCardGenerator {
         let isAccelerometerActive = true; // Start active immediately
         
         const card = document.getElementById('eventCard');
-        // Don't add accelerometer-active class immediately - wait for actual device orientation data
+        // Add accelerometer-active class immediately to show pattern
+        if (card) {
+            card.classList.add('accelerometer-active');
+        }
         
         window.addEventListener('deviceorientation', (event) => {
             console.log('Device orientation event:', event.beta, event.gamma, 'Active:', isAccelerometerActive);
