@@ -9,6 +9,7 @@ class EventCardGenerator {
         this.bindEvents();
         this.initAccelerometer();
         this.fetchAndDisplayLatestCard(); // Initial load
+        this.initializeDefaults(); // Set default pattern
     }
 
     bindEvents() {
@@ -266,12 +267,12 @@ class EventCardGenerator {
                 const rotateY = smoothX * 15;
                 
                 // Parallax translation calculations with smoothed values
-                const translateX = smoothX * -25;
-                const translateY = smoothY * -25;
+                const translateX = smoothX * -35;
+                const translateY = smoothY * -35;
                 
-                // Calculate holo shine position
-                const posX = (x / width) * 100;
-                const posY = (y / height) * 100;
+                // Calculate holo shine position with smoothing
+                const smoothPosX = ((smoothX + 1) / 2) * 100; // Convert from -1,1 to 0,100
+                const smoothPosY = ((smoothY + 1) / 2) * 100;
                 
                 // Batch all style updates
                 card.style.cssText += `
@@ -279,10 +280,10 @@ class EventCardGenerator {
                     --ry: ${rotateY}deg;
                     --tx: ${translateX}px;
                     --ty: ${translateY}px;
-                    --posx: ${posX}%;
-                    --posy: ${posY}%;
-                    --mouse-x: ${posX}%;
-                    --mouse-y: ${posY}%;
+                    --posx: ${smoothPosX}%;
+                    --posy: ${smoothPosY}%;
+                    --mouse-x: ${smoothPosX}%;
+                    --mouse-y: ${smoothPosY}%;
                 `;
             }
         };
@@ -406,13 +407,12 @@ class EventCardGenerator {
             }
 
             card.style.willChange = 'auto';
+            // Only reset rotation and translation, let CSS handle holo fade-out
             card.style.cssText += `
                 --rx: 0deg;
                 --ry: 0deg;
                 --tx: 0px;
                 --ty: 0px;
-                --posx: 50%;
-                --posy: 50%;
             `;
             
             currentRotateX = 0;
@@ -763,6 +763,11 @@ class EventCardGenerator {
         }
         
         console.log('Accelerometer setup complete');
+    }
+
+    initializeDefaults() {
+        // Set filled pattern as default
+        this.switchPattern('filled');
     }
 }
 
