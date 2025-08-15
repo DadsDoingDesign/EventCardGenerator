@@ -49,9 +49,27 @@
 
 body {
     font-family: 'DM Mono';
-    background: var(--background);
+    background: #F9F3E9;
     min-height: 100vh;
     padding: 20px;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('./placeholder/Windsurf_Primary_White.svg');
+    background-size: 80% auto;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.13;
+    mix-blend-mode: luminosity;
+    z-index: -1;
+    pointer-events: none;
 }
 
 .container {
@@ -64,14 +82,20 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2rem;
+    position: relative;
 }
 
 h1 {
+    font-family: 'Tomato Grotesk', sans-serif;
     text-align: center;
     color: var(--text-dark);
     margin-bottom: 30px;
     font-size: 2.5rem;
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
 }
 
 
@@ -515,18 +539,18 @@ h1 {
     right: var(--border-width);
     bottom: var(--border-width);
     left: 0; /* Extend all the way to left edge of card */
-    z-index: 10; /* Above everything else */
+    z-index: 2; /* Above everything else */
     transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     box-shadow: 
         /* External shadow for floating effect */
         0 12px 12px rgba(0, 0, 0, 0.4),
         0 20px 20px rgba(0, 0, 0, 0.3),
         0 32px 32px rgba(0, 0, 0, 0.2);
-    transform: translate3d(var(--tx), var(--ty), 40px); /* Combine parallax and 3D lift */
+    transform: translate3d(var(--tx), var(--ty), 0px); /* Combine parallax and 3D lift */
 }
 
 .card.floating .logo-overlay {
-    z-index: 11; /* Above the floating image */
+    z-index: 3; /* Above the floating image */
 }
 
 .card.floating .logo-overlay::after {
@@ -534,7 +558,6 @@ h1 {
     filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.4))
             drop-shadow(0 30px 60px rgba(0, 0, 0, 0.3))
             drop-shadow(0 45px 90px rgba(0, 0, 0, 0.2));
-    transform: translateZ(45px); /* Slightly higher than image */
 }
 
 /* Hide/show appropriate date overlay based on card style */
@@ -553,7 +576,7 @@ h1 {
     align-items: flex-start;
     justify-content: center;
     padding-top: 20px;
-    z-index: 11;
+    z-index: 4;
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
 }
@@ -564,14 +587,32 @@ h1 {
 
 /* Add subtle glow to border when in floating mode */
 .card.floating .gradient-border {
-    box-shadow: 
-        inset 0 0 20px rgba(255, 255, 255, 0.1),
-        0 0 40px rgba(0, 0, 0, 0.1);
+    z-index: 1; /* Behind the floating image */
+    box-shadow: none;
 }
 
 /* Allow overflow for floating elements */
 .card.floating .card-face {
     overflow: visible; /* Allow floating elements to extend beyond card boundaries */
+}
+
+/* Hide floating image on back of card */
+.card.floating .card-back .image-container {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+/* Ensure floating image only shows on front face */
+.card.floating .card-front .image-container {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+/* Hide front face completely when card is flipped in floating mode */
+.card.floating.flipped .card-front {
+    visibility: hidden !important;
+    opacity: 0 !important;
 }
 
 /* --------------------------------------------------------------------
@@ -646,7 +687,7 @@ h1 {
 }
 
 .back-content-container {
-    z-index: 6; /* This ensures the content appears on top of the gradient border */
+    z-index: 10; /* This ensures the content appears on top of the gradient border */
     position: absolute;
     top: var(--border-width);
     left: var(--border-width);
@@ -676,8 +717,8 @@ h1 {
     opacity: 1;
     z-index: 1;
     pointer-events: none;
-    mask: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), black 0px, black 80px, transparent 160px);
-    -webkit-mask: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), black 0px, black 80px, transparent 160px);
+    mask: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), #0B100F 0px, #0B100F 80px, transparent 160px);
+    -webkit-mask: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), #0B100F 0px, #0B100F 80px, transparent 160px);
     transition: mask 0.1s ease, -webkit-mask 0.1s ease, opacity 0.3s ease;
     opacity: 0;
 }
@@ -770,11 +811,16 @@ h1 {
    -------------------------------------------------------------------- */
 
 .controls-container {
-    background: #ffffff;
+    background: #F9F3E9;
     border-radius: 12px;
     padding: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     margin-bottom: 40px;
+    position: absolute;
+    top: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
 }
 
 .toggle-controls {
@@ -793,6 +839,7 @@ h1 {
 }
 
 .control-label {
+    font-family: 'DM Sans', sans-serif;
     font-size: 12px;
     font-weight: 700;
     color: #555;
