@@ -742,16 +742,15 @@ h1 {
 
 .back-header h1 {
     font-family: 'Tomato Grotesk', sans-serif;
-    font-size: 40px;
+    font-size: 32px;
     font-weight: 400;
-    line-height: 1;
     margin: 0;
-    letter-spacing: -1.28px;
+    font-variation-settings: 'opsz' 14;
     text-align: left;
 }
 
 .back-date {
-    font-size: 24px;
+    font-size: 18px;
     font-weight: 400;
     margin: 0;
     font-variation-settings: 'opsz' 14;
@@ -790,13 +789,14 @@ h1 {
 }
 
 .back-user h3 {
-    font-size: clamp(24px, 8vw, 48px);
+    font-size: clamp(18px, 6vw, 32px);
     font-weight: 700;
     margin: 0;
     font-variation-settings: 'opsz' 14;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    line-height: 1.2;
     transform: translate3d(calc(var(--tx) * 0.8), calc(var(--ty) * 0.8), 10px);
     transition: transform 0.1s ease;
 }
@@ -911,7 +911,11 @@ h1 {
     }
     
     h1 {
-        font-size: 2rem;
+        font-size: 1.25rem;
+    }
+    
+    .controls-container h1 {
+        font-size: 1.25rem;
     }
     
     .controls {
